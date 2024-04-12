@@ -1,124 +1,419 @@
 import tkinter
-from tkcalendar import Calendar
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import PhotoImage
 import sqlite3
+from datetime import datetime
+import tkinter.messagebox
+import matplotlib.pyplot as plt
+import pandas as pd
+import subprocess
 
-def enter_data():
-    accepted = accept_var.get()
-    
-    if accepted=="Accepted":
-        # User info
-        skunumber = skunumber_entry.get()
-        date = date_calender.get_date()
-        category = category_entry.get()
+date = datetime.today().date()
+
+
+def record_revenue():
+
+    conn = sqlite3.connect("data.db")
+    table_create_query = """CREATE TABLE IF NOT EXISTS Revenue_Sheet 
+                    (date STR, revenue INT)
+            """
+    conn.execute(table_create_query)
+
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM Revenue_Sheet")
+    rows = cursor.fetchall()
+
+    revenue_window = tkinter.Toplevel(window)
+    revenue_window.title("Record Revenue")
+    revenue_frame = tkinter.Frame(revenue_window)
+    revenue_frame.pack()
+    desc_frame = tkinter.LabelFrame(revenue_frame, text="Description")
+    desc_frame.grid(row=0, column=0, padx=20, pady=10)
+
+    description = f"""
+    Record total revenue income for today.
+    Date : {datetime.today().date()}
+    Time : {datetime.now().time()}
+    """
+    label_description = tkinter.Label(
+        desc_frame, text=description, padx=10, pady=20, justify="left"
+    )
+    label_description.pack()
+
+    for row in rows:
+        date, revenue = row
+        if date == datetime.today().date():
+            today_revenue = revenue
+
+            app_frame = tkinter.LabelFrame(revenue_frame, text="Add data")
+            app_frame.grid(row=1, column=0, padx=20, pady=10)
+
+            income_label = tkinter.Label(app_frame, text="Revenue (₹)")
+            income_spinbox = tkinter.Spinbox(
+                app_frame, from_=f"{today_revenue}", to="infinity"
+            )
+            income_label.grid(row=2, column=0, padx=10, pady=5)
+            income_spinbox.grid(row=2, column=1, padx=10, pady=5)
+            data_insert_query = """UPDATE Revenue_Sheet SET date = ?, revenue=?"""
+            data_insert_tuple = (date, revenue)
+
+        else:
+            date = datetime.today().date()
+
+            app_frame = tkinter.LabelFrame(revenue_frame, text="Add data")
+            app_frame.grid(row=1, column=0, padx=20, pady=10)
+
+            income_label = tkinter.Label(app_frame, text="Revenue (₹)")
+            income_spinbox = tkinter.Spinbox(app_frame, from_=1, to="infinity")
+            income_label.grid(row=2, column=0, padx=10, pady=5)
+            income_spinbox.grid(row=2, column=1, padx=10, pady=5)
+            revenue = int(income_spinbox.get())
+            data_insert_query = (
+                """INSERT INTO Revenue_Sheet (date, revenue) VALUES (?, ?)"""
+            )
+            data_insert_tuple = (date, revenue)
+
+    def enter_revenue():
+        revenue = int(income_spinbox.get())
+        if revenue == "69420":
+            tkinter.messagebox.showinfo("Nice", "Nice.")
+        else:
+            pass
+        conn = sqlite3.connect("data.db")
+        table_create_query = """CREATE TABLE IF NOT EXISTS Revenue_Sheet 
+                        (date TEXT, revenue INT)
+                """
+        conn.execute(table_create_query)
+        cursor = conn.cursor()
+        cursor.execute(data_insert_query, data_insert_tuple)
+        conn.commit()
+        conn.close()
+
+    button = tkinter.Button(revenue_frame, text="Enter data", command=enter_revenue)
+    button.grid(row=3, column=0, sticky="news", padx=20, pady=10)
+
+
+def inventory_window():
+    inventory_window = tkinter.Toplevel(window)
+    inventory_window.title("Manage Inventory")
+    inventory_frame = tkinter.Frame(inventory_window)
+    inventory_frame.pack()
+    desc_frame = tkinter.LabelFrame(inventory_frame, text="Description")
+    desc_frame.grid(row=0, column=0, padx=20, pady=10)
+
+    description = "Manage iventory for the below SKU units.\nUse the spinboxes to edit the quantity numbers\nof each SKUs"
+    label_description = tkinter.Label(
+        desc_frame, text=description, padx=27, pady=20, justify="left"
+    )
+    label_description.pack()
+
+    app_frame = tkinter.LabelFrame(inventory_frame, text="Add data")
+    app_frame.grid(row=1, column=0, padx=20, pady=10)
+
+    conn = sqlite3.connect("data.db")
+    table_create_query = """CREATE TABLE IF NOT EXISTS SKU_Sheet 
+                    (SKU87423 INT, SKU53982 INT, SKU21675 INT, SKU70148 INT, SKU38291 INT, SKU96574 INT)
+            """
+    conn.execute(table_create_query)
+
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM SKU_Sheet")
+    row = cursor.fetchone()
+
+    SKU87423, SKU53982, SKU21675, SKU70148, SKU38291, SKU96574 = row
+
+    inv_label = tkinter.Label(app_frame, text="SKU87423")
+    inv_label.grid(row=0, column=0, padx=10, pady=5)
+    income_spinbox0 = tkinter.Spinbox(app_frame, from_=f"{SKU87423}", to="infinity")
+    income_spinbox0.grid(row=1, column=0, padx=10, pady=5)
+
+    inv_label = tkinter.Label(app_frame, text="SKU53982")
+    inv_label.grid(row=2, column=0, padx=10, pady=5)
+    income_spinbox1 = tkinter.Spinbox(app_frame, from_=f"{SKU53982}", to="infinity")
+    income_spinbox1.grid(row=3, column=0, padx=10, pady=5)
+
+    inv_label = tkinter.Label(app_frame, text="SKU21675")
+    inv_label.grid(row=4, column=0, padx=10, pady=5)
+    income_spinbox2 = tkinter.Spinbox(app_frame, from_=f"{SKU21675}", to="infinity")
+    income_spinbox2.grid(row=5, column=0, padx=10, pady=5)
+
+    inv_label = tkinter.Label(app_frame, text="SKU70148")
+    inv_label.grid(row=0, column=1, padx=10, pady=5)
+    income_spinbox3 = tkinter.Spinbox(app_frame, from_=f"{SKU70148}", to="infinity")
+    income_spinbox3.grid(row=1, column=1, padx=10, pady=5)
+
+    inv_label = tkinter.Label(app_frame, text="SKU38291")
+    inv_label.grid(row=2, column=1, padx=10, pady=5)
+    income_spinbox4 = tkinter.Spinbox(app_frame, from_=f"{SKU38291}", to="infinity")
+    income_spinbox4.grid(row=3, column=1, padx=10, pady=5)
+
+    inv_label = tkinter.Label(app_frame, text="SKU96574")
+    inv_label.grid(row=4, column=1, padx=10, pady=5)
+    income_spinbox5 = tkinter.Spinbox(app_frame, from_=f"{SKU96574}", to="infinity")
+    income_spinbox5.grid(row=5, column=1, padx=10, pady=5)
+
+    def enter_inventory():
+        revenue0 = income_spinbox0.get()
+        revenue1 = income_spinbox1.get()
+        revenue2 = income_spinbox2.get()
+        revenue3 = income_spinbox3.get()
+        revenue4 = income_spinbox4.get()
+        revenue5 = income_spinbox5.get()
+
+        # Insert Data
+        data_insert_query = """UPDATE SKU_Sheet SET SKU87423 = ?, SKU53982 = ?, SKU21675 = ?, SKU70148 = ?, SKU38291 = ?, SKU96574 = ?"""
+        data_insert_tuple = (revenue0, revenue1, revenue2, revenue3, revenue4, revenue5)
+        cursor = conn.cursor()
+        cursor.execute(data_insert_query, data_insert_tuple)
+        conn.commit()
+        conn.close()
+
+    button = tkinter.Button(inventory_frame, text="Enter data", command=enter_inventory)
+    button.grid(row=3, column=0, sticky="news", padx=20, pady=10)
+
+
+def sales_pitch_window():
+    sales_window = tkinter.Toplevel(window)
+    sales_window.title("View Sales Pitch")
+    sales_frame = tkinter.Frame(sales_window)
+    sales_frame.pack()
+    desc_frame = tkinter.LabelFrame(sales_frame, text="Description")
+    desc_frame.grid(row=0, column=0, padx=20, pady=10)
+
+    description = "View the sales graph over time.\nNOTE: The graph shows data only for the last 20 revenue entries"
+    label_description = tkinter.Label(
+        desc_frame, text=description, padx=20, pady=20, justify="left"
+    )
+    label_description.pack()
+
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT date, revenue FROM Revenue_Sheet ORDER BY date DESC LIMIT 20"
+    )
+    rows = cursor.fetchall()
+
+    dates, revenues = zip(*rows)
+
+    cursor.close()
+    conn.close()
+    dates = [datetime.strptime(date, "%Y-%m-%d") for date in dates]
+
+    plt.plot(dates, revenues, marker="o", linestyle="-")
+
+    # Customize the plot
+    plt.title("Date vs Revenue")
+    plt.xlabel("Date")
+    plt.ylabel("Revenue")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+
+def logistics_info():
+    conn = sqlite3.connect("data.db")
+    table_create_query = """CREATE TABLE IF NOT EXISTS Logistics 
+                    (firm_name STR, manager STR, contact int)
+            """
+    conn.execute(table_create_query)
+    log_window = tkinter.Toplevel(window)
+    log_window.title("Logistics Information")
+    log_frame = tkinter.Frame(log_window)
+    log_frame.pack()
+    log_frame2 = tkinter.LabelFrame(log_frame, text="Dictionary of all suppliers")
+    log_frame2.grid(row=0, column=0, padx=20, pady=10)
+    desc = "View all the current logisctics partners for your firm."
+    log_frame2desc = tkinter.Label(
+        log_frame2, text=desc, padx=20, pady=20, justify="left"
+    )
+    log_frame2desc.pack()
+
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Logistics")
+    rows = cursor.fetchall()
+    if len(rows) == 0:
+        app_frame = tkinter.LabelFrame(log_frame)
+        app_frame.grid(row=1, column=0, padx=20, pady=10)
+
+        manager_label = tkinter.Label(app_frame, text="Hmmm, looks like there are no stored contacts.\nGo back to the home page and use the 'Add Contact'\napp to add a new contact.", padx=20, pady=20, justify="left")
+        manager_label.pack()
+
+    else:        
+        for i, row in enumerate(rows, start = 1):
+            retailer, manager, contact = row
+
+            app_frame = tkinter.LabelFrame(log_frame, text=f"{retailer}")
+            app_frame.grid(row=i, column=0, padx=20, pady=10)
+
+            manager_label = tkinter.Label(app_frame, text=f"Manager Name: {manager}")
+            contact_label = tkinter.Label(
+                app_frame, text = f"Contact: {str(contact)}"
+            )
+            manager_label.grid(row=0, column=0, padx=13, pady=5)
+            contact_label.grid(row=0, column=1, padx=13, pady=5)
+
         
-        if skunumber and category:
-            category = category_entry .get()
-            quantity = quantity_spinbox.get()
-            price = price_combobox.get()
-            
-            # Course info
-            registration_status = reg_status_var.get()
-            numsemesters = date_calender.get_date()
-            
-            print("First name: ", skunumber, "Last name: ", category)
-            print("Category: ", category, "Quantity ", quantity, "Price per unit ", price)
-            print("Date", date)
-            print("------------------------------------------")
-            
-            # Create Table
-            conn = sqlite3.connect('data1.db')
-            table_create_query = '''CREATE TABLE IF NOT EXISTS Student_Data 
-                    (date TEXT, skunumber TEXT, category TEXT, quantity INT,  price INT, 
-                    registration_status TEXT)
-            '''
+
+
+def add_logistics():
+
+    add_window = tkinter.Toplevel(window)
+    add_window.title("Add New Supplier")
+    add_frame = tkinter.Frame(add_window)
+    add_frame.pack()
+    add_frame2 = tkinter.LabelFrame(add_frame, text="Description")
+    add_frame2.grid(row=0, column=0, padx=20, pady=10)
+    add_frame2desc = tkinter.Label(
+        add_frame2,
+        text="Add a new contact entry in your database.\nFill in all the details and hit the Button!",
+        padx=20,
+        pady=20,
+        justify="left",
+    )
+    add_frame2desc.pack()
+
+    add_frame3 = tkinter.LabelFrame(add_frame, text="New Contact Form")
+    add_frame3.grid(row=1, column=0, padx=20, pady=20)
+
+    retail_label = tkinter.Label(add_frame3, text="Retailer Name")
+    retail_entry = tkinter.Entry(add_frame3)
+    retail_label.grid(row=0, column=0, padx=10, pady=5)
+    retail_entry.grid(row=0, column=1, padx=10, pady=5)
+
+    manager_label = tkinter.Label(add_frame3, text="Manager Name")
+    manager_entry = tkinter.Entry(add_frame3)
+    manager_label.grid(row=1, column=0, padx=10, pady=5)
+    manager_entry.grid(row=1, column=1, padx=10, pady=5)
+
+    contact_label = tkinter.Label(add_frame3, text="Contact Number")
+    contact_entry = tkinter.Entry(add_frame3)
+    contact_label.grid(row=2, column=0, padx=10, pady=5)
+    contact_entry.grid(row=2, column=1, padx=10, pady=5)
+
+    def addtodb():
+        try:
+            retailer = retail_entry.get()
+            manager = manager_entry.get()
+            contact = int(contact_entry.get())
+
+            conn = sqlite3.connect("data.db")
+            table_create_query = """CREATE TABLE IF NOT EXISTS Logistics 
+                            (firm_name STR, manager STR, contact STR)
+                    """
             conn.execute(table_create_query)
-            
+
             # Insert Data
-            data_insert_query = '''INSERT INTO Student_Data (date, skunumber, category, quantity, 
-            price, registration_status) VALUES 
-            (?, ?, ?, ?, ?, ?)'''
-            data_insert_tuple = (date, skunumber, category, quantity, price, registration_status)
+            data_insert_query = """INSERT INTO Logistics (firm_name, manager, contact) VALUES (?, ?, ?)"""
+            data_insert_tuple = (retailer, manager, str(contact))
             cursor = conn.cursor()
             cursor.execute(data_insert_query, data_insert_tuple)
             conn.commit()
             conn.close()
+        except ValueError:
+            tkinter.messagebox.showwarning(
+                "Notice", "Contact number must be a 10 digit sequence."
+            )
 
-            
-                
-        else:
-            tkinter.messagebox.showwarning(title="Error", message="SKU Number and last name are required.")
-    else:
-        tkinter.messagebox.showwarning(title= "Error", message="You have not accepted the terms")
+    button = tkinter.Button(add_frame, text="Add Contact", command=addtodb)
+    button.grid(row=2, column=0, sticky="news", padx=20, pady=10)
+
+
+def export():
+
+    conn = sqlite3.connect("data.db")
+    excel_writer = pd.ExcelWriter("data.xlsx", engine="openpyxl")
+
+    dataframes = {}
+
+    tables = ["Revenue_Sheet", "SKU_Sheet", "Logistics"]
+    for table in tables:
+        dataframes[table] = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+
+    for table, df in dataframes.items():
+        df.to_excel(excel_writer, sheet_name=table, index=False)
+
+    excel_writer.close()
+    conn.close()
+    subprocess.Popen(
+        "C:/Users/HP/Documents/GitHub/FMCG_SupplyChainAnalytics/data.xlsx", shell=True
+    )
+    tkinter.messagebox.showinfo(
+        "Action Completed", "Your data has been exported successfully as 'data.xlsx'"
+    )
+
 
 window = tkinter.Tk()
-window.title("Revenue Entry Form")
+window.title("OptiChain")
 
 frame = tkinter.Frame(window)
 frame.pack()
 
-# Saving User Info
-user_info_frame =tkinter.LabelFrame(frame, text="Product Information")
-user_info_frame.grid(row= 0, column=0, padx=20, pady=10)
 
-skunumber_label = tkinter.Label(user_info_frame, text="SKU Number")
-skunumber_label.grid(row=0, column=0)
+welcome_frame = tkinter.LabelFrame(frame, text="Welcome")
+welcome_frame.grid(row=1, column=0, padx=20, pady=10)
 
-category_label =tkinter.Label(user_info_frame, text = "Category")
-category_label.grid(row = 0, column = 1)
+welcome_message = """
+Welcome to OptiChain!
 
-skunumber_entry = tkinter.Entry(user_info_frame)
-category_entry = ttk.Combobox(user_info_frame, values=["", "Beverages", "Snacks", "Lavatories"])
-skunumber_entry.grid(row=1, column=0)
-category_entry.grid(row=1, column=1)
+OptiChain is your all-in-one 
+supply chain management solution. 
+With OptiChain, you can 
+track revenue, manage inventory, 
+analyze sales growth, and 
+optimize logistics to drive business success.
 
-quantity_label = tkinter.Label(user_info_frame, text="Quantity")
-quantity_spinbox = tkinter.Spinbox(user_info_frame, from_=1, to='infinity')
-quantity_label.grid(row=2, column=0)
-quantity_spinbox.grid(row=3, column=0)
+Get started by selecting options from the menu 
+or exploring the analytics features.
+"""
 
-price_label = tkinter.Label(user_info_frame, text="Price Per Unit (₹)")
-price_combobox = tkinter.Spinbox(user_info_frame, from_ = 1, to= 3000)
-price_label.grid(row=2, column=1)
-price_combobox.grid(row=3, column=1)
+label_welcome = tkinter.Label(
+    welcome_frame, text=welcome_message, padx=20, pady=20, justify="left"
+)
+label_welcome.pack()
 
-for widget in user_info_frame.winfo_children():
-    widget.grid_configure(padx=10, pady=5)
+features_frame = tkinter.LabelFrame(
+    frame,
+    text="Apps",
+)
+features_frame.grid(row=2, column=0, padx=5, pady=20)
+button_revenue = tkinter.Button(
+    features_frame, text="Record Revenue", command=record_revenue
+)
+button_revenue.grid(row=0, column=0, sticky="news", padx=30, pady=10)
+button_inventory = tkinter.Button(
+    features_frame, text="Inventory", command=inventory_window
+)
+button_inventory.grid(row=0, column=1, sticky="news", padx=30, pady=10)
+button_sales = tkinter.Button(
+    features_frame, text="Growth Analysis", command=sales_pitch_window
+)
+button_sales.grid(row=1, column=0, sticky="news", padx=30, pady=10)
+button_logistics = tkinter.Button(
+    features_frame, text="Logistics Info", command=logistics_info
+)
+button_logistics.grid(row=2, column=0, sticky="news", padx=30, pady=10)
+button = tkinter.Button(features_frame, text="Add Contact", command=add_logistics)
+button.grid(row=2, column=1, sticky="news", padx=20, pady=10)
 
-# Saving Course Info
-courses_frame = tkinter.LabelFrame(frame)
-courses_frame.grid(row=1, column=0, sticky="news", padx=20, pady=10)
 
-registered_label = tkinter.Label(courses_frame, text="Registration Status")
-
-reg_status_var = tkinter.StringVar(value="Not Registered")
-registered_check = tkinter.Checkbutton(courses_frame, text="Currently Registered",
-                                       variable=reg_status_var, onvalue="Registered", offvalue="Not registered")
-
-registered_label.grid(row=0, column=0)
-registered_check.grid(row=1, column=0)
+button = tkinter.Button(features_frame, text="Export Data", command=export)
+button.grid(row=1, column=1, sticky="news", padx=20, pady=10)
 
 
-date_label = tkinter.Label(courses_frame, text="# Semesters")
-date_calender = Calendar(courses_frame, selectmode="day", date_pattern="yyyy-mm-dd")
-date_label.grid(row=0, column=2)
-date_calender.grid(row=1, column=2)
+image_path = "OptiChain Res.png"
+image = PhotoImage(file=image_path)
 
-for widget in courses_frame.winfo_children():
-    widget.grid_configure(padx=10, pady=5)
 
-# Accept terms
-terms_frame = tkinter.LabelFrame(frame, text="Terms & Conditions")
-terms_frame.grid(row=2, column=0, sticky="news", padx=20, pady=10)
+image_label = tkinter.Label(frame, image=image, padx=70, pady=10)
+image_label.grid(row=0, column=0)
 
-accept_var = tkinter.StringVar(value="Not Accepted")
-terms_check = tkinter.Checkbutton(terms_frame, text= "I accept the terms and conditions.",
-                                  variable=accept_var, onvalue="Accepted", offvalue="Not Accepted")
-terms_check.grid(row=0, column=0)
 
-# Button
-button = tkinter.Button(frame, text="Enter data", command= enter_data)
-button.grid(row=3, column=0, sticky="news", padx=20, pady=10)
- 
+icon = "Icon.ico"
+window.iconbitmap(False, icon)
 window.mainloop()
+
