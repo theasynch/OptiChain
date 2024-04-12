@@ -4,7 +4,9 @@ import sqlite3
 from datetime import datetime
 import tkinter.messagebox
 import matplotlib.pyplot as plt
-
+import pandas as pd
+import subprocess
+from pathlib import Path
 
 date = datetime.today().date()
 
@@ -57,6 +59,8 @@ def record_revenue():
             data_insert_tuple = (date, revenue)
 
         else:
+            date = datetime.today().date()
+
             app_frame = tkinter.LabelFrame(revenue_frame, text="Add data")
             app_frame.grid(row=1, column=0, padx=20, pady=10)
 
@@ -64,14 +68,14 @@ def record_revenue():
             income_spinbox = tkinter.Spinbox(app_frame, from_=1, to="infinity")
             income_label.grid(row=2, column=0, padx=10, pady=5)
             income_spinbox.grid(row=2, column=1, padx=10, pady=5)
+            revenue = int(income_spinbox.get())
             data_insert_query = (
                 """INSERT INTO Revenue_Sheet (date, revenue) VALUES (?, ?)"""
             )
             data_insert_tuple = (date, revenue)
 
     def enter_revenue():
-        revenue = income_spinbox.get()
-        print(type(revenue))
+        revenue = int(income_spinbox.get())
         if revenue == "69420":
             tkinter.messagebox.showinfo("Nice", "Nice.")
         else:
@@ -98,9 +102,9 @@ def inventory_window():
     desc_frame = tkinter.LabelFrame(inventory_frame, text="Description")
     desc_frame.grid(row=0, column=0, padx=20, pady=10)
 
-    description = "Manage iventory for the below SKU units.\nUse the spinboxes to edit the quantity numbers of each SKUs"
+    description = "Manage iventory for the below SKU units.\nUse the spinboxes to edit the quantity numbers\nof each SKUs"
     label_description = tkinter.Label(
-        desc_frame, text=description, padx=20, pady=20, justify="left"
+        desc_frame, text=description, padx=27, pady=20, justify="left"
     )
     label_description.pack()
 
@@ -212,6 +216,11 @@ def sales_pitch_window():
 
 
 def logistics_info():
+    conn = sqlite3.connect("data.db")
+    table_create_query = """CREATE TABLE IF NOT EXISTS Logistics 
+                    (firm_name STR, manager STR, contact int)
+            """
+    conn.execute(table_create_query)
     log_window = tkinter.Toplevel(window)
     log_window.title("Logistics Information")
     log_frame = tkinter.Frame(log_window)
@@ -223,6 +232,11 @@ def logistics_info():
         log_frame2, text=desc, padx=20, pady=20, justify="left"
     )
     log_frame2desc.pack()
+
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Logistics")
+    rows = cursor.fetchall()
 
 
 def add_logistics():
@@ -266,18 +280,15 @@ def add_logistics():
             manager = manager_entry.get()
             contact = int(contact_entry.get())
 
-            # ValueError(int):
-            #    tkinter.messagebox.showwarning("Notice", "Contact number must be a 10 digit sequence")
-
             conn = sqlite3.connect("data.db")
             table_create_query = """CREATE TABLE IF NOT EXISTS Logistics 
-                            (firm_name STR, manager STR, contact int)
+                            (firm_name STR, manager STR, contact STR)
                     """
             conn.execute(table_create_query)
 
             # Insert Data
             data_insert_query = """INSERT INTO Logistics (firm_name, manager, contact) VALUES (?, ?, ?)"""
-            data_insert_tuple = (retailer, manager, contact)
+            data_insert_tuple = (retailer, manager, str(contact))
             cursor = conn.cursor()
             cursor.execute(data_insert_query, data_insert_tuple)
             conn.commit()
@@ -289,6 +300,30 @@ def add_logistics():
 
     button = tkinter.Button(add_frame, text="Add Contact", command=addtodb)
     button.grid(row=2, column=0, sticky="news", padx=20, pady=10)
+
+
+def export():
+
+    conn = sqlite3.connect("data.db")
+    excel_writer = pd.ExcelWriter("data.xlsx", engine="openpyxl")
+
+    dataframes = {}
+
+    tables = ["Revenue_Sheet", "SKU_Sheet", "Logistics"]
+    for table in tables:
+        dataframes[table] = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+
+    for table, df in dataframes.items():
+        df.to_excel(excel_writer, sheet_name=table, index=False)
+
+    excel_writer.close()
+    conn.close()
+    subprocess.Popen(
+        "C:/Users/HP/Documents/GitHub/FMCG_SupplyChainAnalytics/data.xlsx", shell=True
+    )
+    tkinter.messagebox.showinfo(
+        "Action Completed", "Your data has been exported successfully as 'data.xlsx'"
+    )
 
 
 window = tkinter.Tk()
@@ -340,9 +375,13 @@ button_sales.grid(row=1, column=0, sticky="news", padx=30, pady=10)
 button_logistics = tkinter.Button(
     features_frame, text="Logistics Info", command=logistics_info
 )
-button_logistics.grid(row=1, column=1, sticky="news", padx=30, pady=10)
+button_logistics.grid(row=2, column=0, sticky="news", padx=30, pady=10)
 button = tkinter.Button(features_frame, text="Add Contact", command=add_logistics)
-button.grid(row=2, column=0, sticky="news", padx=20, pady=10)
+button.grid(row=2, column=1, sticky="news", padx=20, pady=10)
+
+
+button = tkinter.Button(features_frame, text="Export Data", command=export)
+button.grid(row=1, column=1, sticky="news", padx=20, pady=10)
 
 
 image_path = "OptiChain Res.png"
