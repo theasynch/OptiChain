@@ -19,7 +19,7 @@ OptiChain is an integrated supply chain management solution developed in Python 
 
 ## Usage
 1. **Installation**: Ensure that Python is installed on your system along with the required dependencies mentioned above.
-2. **Execution**: Run the `optichain.py` script to launch the OptiChain application.
+2. **Execution**: Run the `main.py` script to launch the OptiChain application.
 3. **Navigation**: Use the buttons in the main window to access different features of the application.
 4. **Data Entry**: Enter data as prompted in the respective windows for revenue recording, inventory management, and logistics information.
 5. **Export**: Click on the "Export Data" button to export the database contents to an Excel file.
