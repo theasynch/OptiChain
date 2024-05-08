@@ -40,33 +40,18 @@ def record_revenue():
     )
     label_description.pack()
 
-    if existing_row:
-        # If there is an entry for today's date, update it
-        today_revenue = existing_row[1]
-        app_frame = tkinter.LabelFrame(revenue_frame, text="Add data")
-        app_frame.grid(row=1, column=0, padx=20, pady=10)
+    
+    app_frame = tkinter.LabelFrame(revenue_frame, text="Add data")
+    app_frame.grid(row=1, column=0, padx=20, pady=10)
 
-        income_label = tkinter.Label(app_frame, text="Revenue (₹)")
-        income_spinbox = tkinter.Spinbox(
-            app_frame, from_=f"{today_revenue}", to="infinity"
-        )
-        income_label.grid(row=2, column=0, padx=10, pady=5)
-        income_spinbox.grid(row=2, column=1, padx=10, pady=5)
-        data_insert_query = """UPDATE Revenue_Sheet SET revenue=? WHERE date=?"""
-        data_insert_tuple = (income_spinbox.get(), datetime.today().date())
-    else:
-        # If there is no entry for today's date, insert a new row
-        app_frame = tkinter.LabelFrame(revenue_frame, text="Add data")
-        app_frame.grid(row=1, column=0, padx=20, pady=10)
-
-        income_label = tkinter.Label(app_frame, text="Revenue (₹)")
-        income_spinbox = tkinter.Spinbox(app_frame, from_=1, to="infinity")
-        income_label.grid(row=2, column=0, padx=10, pady=5)
-        income_spinbox.grid(row=2, column=1, padx=10, pady=5)
-        data_insert_query = (
-            """INSERT INTO Revenue_Sheet (date, revenue) VALUES (?, ?)"""
-        )
-        data_insert_tuple = (datetime.today().date(), income_spinbox.get())
+    income_label = tkinter.Label(app_frame, text="Revenue (₹)")
+    income_spinbox = tkinter.Spinbox(app_frame, from_=1, to="infinity")
+    income_label.grid(row=2, column=0, padx=10, pady=5)
+    income_spinbox.grid(row=2, column=1, padx=10, pady=5)
+    data_insert_query = (
+        """INSERT INTO Revenue_Sheet (date, revenue) VALUES (?, ?)"""
+    )
+    data_insert_tuple = (datetime.today().date(), income_spinbox.get())
 
     def enter_revenue():
         """
