@@ -1,0 +1,46 @@
+%% This is a mermaid file. 
+%% It is a JavaScript library that provides an easy-to-use syntax for creating various types of diagrams and flowcharts. 
+%% Please use mermaid file viewers such as  to see the flowchart in action.
+
+flowchart TD
+    A{Start} --> B([Initialize Main Window])
+    B --> C[/Define Functions/]
+    
+    C --> D[record_revenue]
+    D --> J[Create Revenue Window]
+    J --> K[Check Existing Entry]
+    K --> L[Create UI Elements]
+    L --> M[Define enter_revenue]
+    M --> N[Insert Data into DB]
+    
+    C --> E[inventory_window]
+    E --> O[Create Inventory Window]
+    O --> P[Create UI Elements]
+    P --> Q[Define enter_inventory]
+    Q --> R[Update SKU Data in DB]
+    
+    C --> F[sales_pitch_window]
+    F --> S[Create Sales Graph Window]
+    S --> T[Retrieve Last 20 Entries]
+    T --> U[Plot Data]
+    
+    C --> G[logistics_info]
+    G --> V[Create Logistics Info Window]
+    V --> W[Retrieve Logistics Data]
+    W --> X[Display Data]
+    
+    C --> H[add_logistics]
+    H --> Y[Create Add Contact Window]
+    Y --> Z[Create UI Elements]
+    Z --> AA[Define addtodb]
+    AA --> AB[Insert Contact into DB]
+    
+    C --> I[export]
+    I --> AC[Retrieve Data from DB]
+    AC --> AD[Write Data to Excel]
+    AD --> AE[Notify User]
+    
+    B --> AF[/Set Up Main Window : UI/]
+    AF --> AG[Add Buttons and Image]
+    AG --> AH[Start Tkinter Main Loop]
+    AH --> AI(End)

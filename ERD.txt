@@ -1,0 +1,30 @@
+%% This is a mermaid file. 
+%% It is a JavaScript library that provides an easy-to-use syntax for creating various types of diagrams and flowcharts. 
+%% Please use mermaid file viewers such as https://.mermaidflow.app/editor to see the flowchart in action.
+
+
+erDiagram
+
+    REVENUE_SHEET {
+        DATE STRING
+        REVENUE INT
+    }
+
+    SKU_SHEET {
+        SKU87423 INT
+        SKU53982 INT
+        SKU21675 INT
+        SKU70148 INT
+        SKU38291 INT
+        SKU96574 INT
+    }
+
+    LOGISTICS {
+        FIRM_NAME STRING
+        MANAGER STRING
+        CONTACT STRING
+    }
+
+    REVENUE_SHEET ||..|| SKU_SHEET: "Referenced By"
+    SKU_SHEET ||..|| LOGISTICS: "Referenced By"
+    LOGISTICS ||..|| REVENUE_SHEET: "Referenced By"
